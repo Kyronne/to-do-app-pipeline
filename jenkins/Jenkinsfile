@@ -10,36 +10,7 @@ pipeline {
                 sh "bash jenkins/setup.sh"
             }
         }
-        stage('Test') {
-            steps {
-                sh "bash jenkins/test.sh"
-            }
-        }
-        stage('Create Schema') {
-            steps {
-                script{
-                    if (env.CREATE_SCHEMA == "true") {
-                        sh "bash jenkins/create_schema.sh"
-                        sh "python3 create.py"
-                        sh 'echo "Schema Created!"'
-                    }
-                }
-            }
-        }
-        stage('Run') {
-            steps {
-                script{
-                    if (env.RUN_APP == "true") {
-                        sh "python3 app.py"
-                    }
-                }
-            }
-        }
-    }
-    post {
-        always {
-            junit 'junit_report.xml'
-            cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+       
         }
     }
 }
