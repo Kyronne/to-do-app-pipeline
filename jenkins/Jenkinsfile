@@ -3,7 +3,7 @@ pipeline{
         stages{
             stage('Export DATABASE_URI'){
                 steps{
-                    sh "bash export DATABASE_URI"
+                    sh "bash export DATABASE_URI=sqlite://data.db"
                     sh "bash export CREATE_SCHEMA=false"
                 }
             }
