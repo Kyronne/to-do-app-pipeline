@@ -37,6 +37,6 @@ pipeline{
                 steps{
                    sh "python3 create.py" 
                 }
-            }
-            
+            }   
         }
+}
