@@ -3,39 +3,39 @@ pipeline{
         stages{
             stage('Export DATABASE_URI'){
                 steps{
-                    sh "export DATABASE_URI"
-                    sh "export CREATE_SCHEMA=false"
+                    sh "bash export DATABASE_URI"
+                    sh "bash export CREATE_SCHEMA=false"
                 }
             }
             stage('Install Apt'){
                 steps{
-                    sh "sudo apt update"
-                    sh "sudo apt install python3-venv python3-pip python3 -y"
+                    sh "bash sudo apt update"
+                    sh "bash sudo apt install python3-venv python3-pip python3 -y"
                 }
             }
             stage('Create Python Venv'){
                 steps{
-                   sh "python3 -m venv venv" 
+                   sh "bash python3 -m venv venv" 
                 }
             }
             stage('Activate venv'){
                 steps{
-                   sh "source venv/bin/activate" 
+                   sh "bash source venv/bin/activate" 
                 }
             }
             stage('install pip requirements'){
                 steps{
-                   sh "pip3 install -r requirements.txt" 
+                   sh "bash pip3 install -r requirements.txt" 
                 }
             }
             stage('Run pytest'){
                 steps{
-                   sh "python3 -m pytest --cov=application --cov-report term-missing --cov-report xml --junitxml=junit_report.xml" 
+                   sh " bash python3 -m pytest --cov=application --cov-report term-missing --cov-report xml --junitxml=junit_report.xml" 
                 }
             }
             stage('Create schema'){
                 steps{
-                   sh "python3 create.py" 
+                   sh "bash python3 create.py" 
                 }
             }   
         }
