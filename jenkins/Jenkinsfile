@@ -1,42 +1,44 @@
-pipeline{
-        agent any
-        stages{
-            stage('Export DATABASE_URI'){
-                steps{
-                    sh "bash export DATABASE_URI=sqlite://data.db"
-                    sh "bash export CREATE_SCHEMA=false"
-                }
+pipeline {
+    agent any
+    environment {
+        CREATE_SCHEMA = "true"
+        RUN_APP = "true"
+        DATABASE_URI = credentials("DATABASE_URI")
+    }
+    stages {
+        stage('Setup') {
+            steps {
+                sh "bash jenkins/setup.sh"
             }
-            stage('Install Apt'){
-                steps{
-                    sh "bash sudo apt update"
-                    sh "bash sudo apt install python3-venv python3-pip python3 -y"
-                }
-            }
-            stage('Create Python Venv'){
-                steps{
-                   sh "bash python3 -m venv venv" 
-                }
-            }
-            stage('Activate venv'){
-                steps{
-                   sh "bash source venv/bin/activate" 
-                }
-            }
-            stage('install pip requirements'){
-                steps{
-                   sh "bash pip3 install -r requirements.txt" 
-                }
-            }
-            stage('Run pytest'){
-                steps{
-                   sh " bash python3 -m pytest --cov=application --cov-report term-missing --cov-report xml --junitxml=junit_report.xml" 
-                }
-            }
-            stage('Create schema'){
-                steps{
-                   sh "bash python3 create.py" 
-                }
-            }   
         }
+        stage('Test') {
+            steps {
+                sh "bash jenkins/test.sh"
+            }
+        }
+        stage('Create Schema') {
+            steps {
+                script{
+                    if (env.CREATE_SCHEMA == "true") {
+                        sh "bash jenkins/create_schema.sh"
+                    }
+                }
+            }
+        }
+        stage('Run') {
+            steps {
+                script{
+                    if (env.RUN_APP == "true") {
+                        sh "bash jenkins/run_app.sh"
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            junit 'junit_report.xml'
+            cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+        }
+    }
 }
